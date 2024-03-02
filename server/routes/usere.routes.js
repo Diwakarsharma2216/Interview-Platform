@@ -1,10 +1,12 @@
 const express = require('express');
 const Userrouter = express.Router();
-const {registerUser,loginUser,logoutUser,getCurrentUser, refreshtoken}=require("../controller/user.controller")
+const {registerUser,loginUser,logoutUser,getCurrentUser, refreshtoken, activateUser}=require("../controller/user.controller")
 
 // Register a new user
 Userrouter.post('/register', registerUser);
 
+// otp verifican
+Userrouter.post("/activate-User",activateUser)
 
 // Login user
 Userrouter.post('/login', loginUser);

@@ -70,43 +70,39 @@ const registerUser = async (req, res) => {
 
 
 
-//  active the user
+//  active the user >>>>>
 
-// const activateUser=async(req,res)=>{
-//   try {
-//       const {token,activationCode}=req.body 
-//      const newUser1=jwt.verify(token,process.env.ACTIVATION_SECRET) 
+ const activateUser=async(req,res)=>{
+  try {
+      const {token,activationCode}=req.body 
+     const newUser=jwt.verify(token,process.env.JWT_SECRET_Key ) 
+     console.log(newUser)
+  if(newUser.activationCode!==activationCode){
+    res.status(400).json({message:"Invalid activation code"})
+  }
 
-//   if(newUser.activationCode!==activationCode){
-//   return res.status(400).json({message:"Invalid activation code"})
-//   }
+  const {name,email,password}=newUser.user
+  const existinguser=await UserModel.findOne({email})
+if(existinguser){
+res.status(400).json({message:"Email is already Exist"})
+}
 
-//   const {name,email,password}=newUser.user
-//   const existinguser=await UserModel.findOne({email})
-// if(existinguser){
-//   return next(new ErrorHandling("Email is al ready exsit",400))
-// }
+const user=await UserModel.create({name,email,password})
+res.status(201).json({
+  success:true,
+  user
+})
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+}  
 
 
-//  // Hash the password before saving it to the database
-//  const hashedPassword = await bcrypt.hash(password, 10);
-//  // Create a new user
-//  const newUser = new UserModel({
-//   username,
-//   email,
-//   password: hashedPassword,
-// });
 
-// // Save the user to the database
-// await newUser.save();
 
-// res.status(201).json({ message: "User registered successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: error.message });
-//   }
-// }  
 
+// >>>>>Loginuser part .>>>>>>
 
 const loginUser = async (req, res) => {
   try {
@@ -183,4 +179,4 @@ let refreshtoken=(req,res)=>{
 
   }
 
-module.exports = { registerUser, loginUser, getCurrentUser, logoutUser,refreshtoken };
+module.exports = { registerUser, loginUser, getCurrentUser, logoutUser,refreshtoken,activateUser };

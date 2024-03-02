@@ -7,7 +7,7 @@ const ejs =require("ejs")
 
 
 const sendMail=async(options)=>{
-    console.log("Options:", options);
+
     const transporter=nodemailer.createTransport({
         host:process.env.SMTP_HOST,
         port:parseInt(process.env.SMTP_PORT || "578"),
@@ -32,7 +32,7 @@ const sendMail=async(options)=>{
         subject,
         html
     }
-    console.log("Mail Options:", mailOption);
+
     await transporter.sendMail(mailOption)
 }
 
