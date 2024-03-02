@@ -2,10 +2,13 @@ const express = require('express');
 const ConnectToDatabase = require('./config/db');
 require('dotenv').config()
 const cors = require('cors');
-const session = require('express-session');
+
 const app = express();
-const passport=require("./config/passport");
+
 const Userrouter = require('./routes/usere.routes');
+const authenticateMiddleware = require('./middleware/authMiddleware');
+const authorise = require('./middleware/authorise');
+
 const PORT = process.env.PORT || 3000;
 
 
@@ -19,6 +22,15 @@ app.use(cors());
 
 // User Router
 app.use("/user",Userrouter)
+
+//  for test purpose
+
+app.get("/test",authenticateMiddleware,authorise(["admin"]),(req,res)=>{
+    console.log("You can acces this code")
+    res.send("You can acces this code")
+})
+
+
 
 app.listen(PORT,async()=>{
     try {

@@ -75,23 +75,30 @@ const registerUser = async (req, res) => {
  const activateUser=async(req,res)=>{
   try {
       const {token,activationCode}=req.body 
-     const newUser=jwt.verify(token,process.env.JWT_SECRET_Key ) 
+     const newUser=jwt.verify(token,process.env.ACTIVATION_SECRET_KEY ) 
      console.log(newUser)
   if(newUser.activationCode!==activationCode){
     res.status(400).json({message:"Invalid activation code"})
   }
 
-  const {name,email,password}=newUser.user
+  const {username,email,password}=newUser.user
   const existinguser=await UserModel.findOne({email})
 if(existinguser){
 res.status(400).json({message:"Email is already Exist"})
 }
 
-const user=await UserModel.create({name,email,password})
-res.status(201).json({
-  success:true,
-  user
+bcrypt.hash(password, 10, async(err, hash)=>{
+  // Store hash in your password DB.
+  if(err){
+    res.status(400).json({message:"Something went wrong"})
+  }
+  const user=await UserModel.create({username,email,password:hash})
+  res.status(201).json({
+    success:true,
+    user
+  })
 })
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
@@ -116,11 +123,11 @@ const loginUser = async (req, res) => {
 
     const token = jwt.sign(
       { userId: user._id, email: user.email },
-      process.env.JWT_SECRET_Key,
+      process.env.JWT_SECRET_KEY,
       { expiresIn: "1h" }
     );
 
-    const refreshtoken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET_Refresh_key, {
+    const refreshtoken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET_REFRESH_KEY, {
       expiresIn: 300
     });
     
@@ -161,14 +168,13 @@ const getCurrentUser = (req, res) => {
 
 
 // refreshToken
-
 let refreshtoken=(req,res)=>{
   const refreshtoken = req.headers.authorization?.split(" ")[1]
-  const decoded=jwt.verify(refreshtoken,JWT_SECRET_Refresh_key)
+  const decoded=jwt.verify(refreshtoken,process.env.JWT_SECRET_REFRESH_KEY)
   console.log(decoded)
 
   if(decoded){
-      let token=jwt.sign({userId:decoded.userId,username:decoded.username},JWT_SECRET_key,{
+      let token=jwt.sign({userId:decoded.userId,email:decoded.email},process.env.JWT_SECRET_KEY,{
           expiresIn: 60
         })
       return res.send(token)

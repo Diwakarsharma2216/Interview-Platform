@@ -11,7 +11,11 @@ const userSchema = new mongoose.Schema({
     default: "user",
     enum: ["customer", "user"],
   },
-});
+  avatar:{
+    public_id:String,
+    url:String
+},
+},{timestamps:true});
 
 const UserModel = mongoose.model("User", userSchema);
 
