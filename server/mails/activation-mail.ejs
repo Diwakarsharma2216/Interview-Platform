@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to [Your E-Learning Platform]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007BFF;
+        }
+        h2 {
+            color: #333333;
+        }
+        p {
+            font-size: 16px;
+            color: #666666;
+            line-height: 1.5;
+        }
+        a {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007BFF;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to  Red and White 🚀</h1>
+        <p>Dear <%= user.name %>👋,</p>
+        <p>We are excited to have you join our platform to expand your knowledge.</p>
+        <p>You have enrolled in the course:<strong>Mern Stack 🚀</strong></p>
+        <p>Start your learning journey today! 📚</p>
+        <p>Your OTP for course enrollment: <strong><%= activationCode %></strong></p>
+        <a href="https://diwakarsharma2216.github.io/">Start Learning</a>
+        <p>If you have any questions or need assistance, please don't hesitate to contact us.</p>
+        <p>Happy learning! 🎉</p>
+        <p>Best regards,<br>EduWakar💼</p>
+    </div>
+</body>
+</html>

@@ -2,17 +2,46 @@
 const passport = require('passport');
 const GitHubStrategy = require('passport-github').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User');
+const UserModel = require('../models/user.model');
+const LocalStrategy = require('passport-local').Strategy;
+
+// Local Strategy
+passport.use(new LocalStrategy(
+  {
+    usernameField: 'email', // Assuming you're using email for login, adjust as needed
+    passwordField: 'password', // Assuming your password field is named 'password', adjust as needed
+  },
+  async (email, password, done) => {
+    try {
+      const user = await UserModel.findOne({ email });
+
+      if (!user) {
+        return done(null, false, { message: 'Invalid email' });
+      }
+
+      const isValidPassword = await user.isValidPassword(password);
+
+      if (!isValidPassword) {
+        return done(null, false, { message: 'Invalid password' });
+      }
+
+      return done(null, user);
+    } catch (error) {
+      return done(error, false, { message: 'Internal Server Error' });
+    }
+  }
+));
+
 
 // GitHub Strategy
 passport.use(new GitHubStrategy({
-  clientID: 'your_github_client_id',
-  clientSecret: 'your_github_client_secret',
+  clientID: 'b7bcfa5d507c47d55b05',
+  clientSecret: 'a7ae5ce4f24d2998e1bc4c0278d80bdd4d979893',
   callbackURL: 'http://localhost:3000/auth/github/callback',
 },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      const existingUser = await User.findOne({ githubId: profile.id });
+      const existingUser = await UserModel.findOne({ githubId: profile.id });
       if (existingUser) {
         return done(null, existingUser);
       }
@@ -24,6 +53,9 @@ passport.use(new GitHubStrategy({
     }
   }
 ));
+
+
+
 
 // Google Strategy
 passport.use(new GoogleStrategy({
@@ -51,7 +83,10 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => {
+  UserModel.findById(id, (err, user) => {
     done(err, user);
   });
 });
+
+
+module.exports = passport;
