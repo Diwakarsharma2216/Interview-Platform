@@ -1,14 +1,13 @@
 const bcrypt = require("bcrypt");
-const ejs=require("ejs")
-const path=require("path")
+const ejs = require("ejs");
+const path = require("path");
 const UserModel = require("../models/user.model");
 const BlacklistToken = require("../models/blacklistToken.model");
-const jwt=require("jsonwebtoken");
-const   sendMail  = require("../config/sendMail");
+const jwt = require("jsonwebtoken");
+const sendMail = require("../config/sendMail");
 const CreateActivationToken = require("../config/otp");
-require('dotenv').config()
+require("dotenv").config();
 // const passport=require("../config/passport")
-
 
 const registerUser = async (req, res) => {
   try {
@@ -24,41 +23,41 @@ const registerUser = async (req, res) => {
         .json({ message: "Username or email already exists" });
     }
 
-    
     // Create a new user
-    const user ={
+    const user = {
       username,
       email,
       password,
-    }
+    };
 
     // Save the user to the database
-    const activationToken=CreateActivationToken(user)
+    const activationToken = CreateActivationToken(user);
 
-    const activationCode=activationToken.activationCode
+    const activationCode = activationToken.activationCode;
 
-    // Email part 
-    const data={user:{name:user.username},activationCode}
+    // Email part
+    const data = { user: { name: user.username }, activationCode };
 
-    const html=await ejs.renderFile(path.join(__dirname,"../mails/activation-mail.ejs"),data)
-        try {
-        await sendMail({
-            email:user.email,
-            subject:"Activation Email",
-            template:"activation-mail.ejs",
-            data
-        })   
-        
-        res.status(201).json({
-            success:true,
-            message:`Please check your email ${user.email} to activate your account`,
-            activationToken:activationToken
-        })
-        } catch (error) {
-          res.status(500).json({ message: error.message });
-        }
+    const html = await ejs.renderFile(
+      path.join(__dirname, "../mails/activation-mail.ejs"),
+      data
+    );
+    try {
+      await sendMail({
+        email: user.email,
+        subject: "Activation Email",
+        template: "activation-mail.ejs",
+        data,
+      });
 
-
+      res.status(201).json({
+        success: true,
+        message: `Please check your email ${user.email} to activate your account`,
+        activationToken: activationToken,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
 
     // res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -67,47 +66,39 @@ const registerUser = async (req, res) => {
   }
 };
 
-
-
-
 //  active the user >>>>>
 
- const activateUser=async(req,res)=>{
+const activateUser = async (req, res) => {
   try {
-      const {token,activationCode}=req.body 
-     const newUser=jwt.verify(token,process.env.ACTIVATION_SECRET_KEY ) 
-     console.log(newUser)
-  if(newUser.activationCode!==activationCode){
-    res.status(400).json({message:"Invalid activation code"})
-  }
+    const { token, activationCode } = req.body;
+    const newUser = jwt.verify(token, process.env.ACTIVATION_SECRET_KEY);
+    console.log(newUser);
+    if (newUser.activationCode !== activationCode) {
+      res.status(400).json({ message: "Invalid activation code" });
+    }
 
-  const {username,email,password}=newUser.user
-  const existinguser=await UserModel.findOne({email})
-if(existinguser){
-res.status(400).json({message:"Email is already Exist"})
-}
+    const { username, email, password } = newUser.user;
+    const existinguser = await UserModel.findOne({ email });
+    if (existinguser) {
+      res.status(400).json({ message: "Email is already Exist" });
+    }
 
-bcrypt.hash(password, 10, async(err, hash)=>{
-  // Store hash in your password DB.
-  if(err){
-    res.status(400).json({message:"Something went wrong"})
-  }
-  const user=await UserModel.create({username,email,password:hash})
-  res.status(201).json({
-    success:true,
-    user
-  })
-})
-
+    bcrypt.hash(password, 10, async (err, hash) => {
+      // Store hash in your password DB.
+      if (err) {
+        res.status(400).json({ message: "Something went wrong" });
+      }
+      const user = await UserModel.create({ username, email, password: hash });
+      res.status(201).json({
+        success: true,
+        user,
+      });
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
   }
-}  
-
-
-
-
+};
 
 // >>>>>Loginuser part .>>>>>>
 
@@ -127,11 +118,17 @@ const loginUser = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    const refreshtoken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET_REFRESH_KEY, {
-      expiresIn: 300
-    });
-    
-    res.status(200).json({ token, userId: user._id, expiresIn: 3600,refreshtoken });
+    const refreshtoken = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET_REFRESH_KEY,
+      {
+        expiresIn: 300,
+      }
+    );
+
+    res
+      .status(200)
+      .json({ token, userId: user._id, expiresIn: 3600, refreshtoken });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
@@ -166,23 +163,62 @@ const getCurrentUser = (req, res) => {
   res.status(200).json({ user: "under consruction" });
 };
 
-
 // refreshToken
-let refreshtoken=(req,res)=>{
-  const refreshtoken = req.headers.authorization?.split(" ")[1]
-  const decoded=jwt.verify(refreshtoken,process.env.JWT_SECRET_REFRESH_KEY)
-  console.log(decoded)
+let refreshtoken = (req, res) => {
+  const refreshtoken = req.headers.authorization?.split(" ")[1];
+  const decoded = jwt.verify(refreshtoken, process.env.JWT_SECRET_REFRESH_KEY);
+  console.log(decoded);
 
-  if(decoded){
-      let token=jwt.sign({userId:decoded.userId,email:decoded.email},process.env.JWT_SECRET_KEY,{
-          expiresIn: 60
-        })
-      return res.send(token)
-    }
-    else{
-      res.send("invalid refresh token, plz login again")
-    }
-
+  if (decoded) {
+    let token = jwt.sign(
+      { userId: decoded.userId, email: decoded.email },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: 60,
+      }
+    );
+    return res.send(token);
+  } else {
+    res.send("invalid refresh token, plz login again");
   }
+};
 
-module.exports = { registerUser, loginUser, getCurrentUser, logoutUser,refreshtoken,activateUser };
+// get user by info by id
+
+const getuserById = async (req, res) => {
+  try {
+    const userid = req.user?._id;
+
+    const user = await UserModel.findById({ _id: userid });
+
+    if (user) {
+      res.status(201).json({
+        success: true,
+        user,
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+};
+
+// >>>> i am to element some more functionality below
+
+//1 social auth
+//2 update user info
+//3 updated user Password
+//4 user profile picture 
+//5 get all user --- only for admin
+//6 change role --only admin
+//7delete user or block user only for admin
+module.exports = {
+  registerUser,
+  loginUser,
+  getCurrentUser,
+  logoutUser,
+  refreshtoken,
+  activateUser,
+  getuserById,
+};

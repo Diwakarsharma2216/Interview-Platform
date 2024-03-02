@@ -1,6 +1,8 @@
 const express = require('express');
 const Userrouter = express.Router();
-const {registerUser,loginUser,logoutUser,getCurrentUser, refreshtoken, activateUser}=require("../controller/user.controller")
+const {registerUser,loginUser,logoutUser,getCurrentUser, refreshtoken, activateUser, getuserById}=require("../controller/user.controller");
+const authorise = require('../middleware/authorise');
+const authenticateMiddleware = require('../middleware/authMiddleware');
 
 // Register a new user
 Userrouter.post('/register', registerUser);
@@ -20,5 +22,9 @@ Userrouter.get('/current-user', getCurrentUser);
 
 // get refresh token 
 Userrouter.get("/refreshtoken",refreshtoken)
+
+// get all user for ---admin only
+Userrouter.get("/get-all-user",authenticateMiddleware,authorise(["admin"]),getuserById)
+
 
 module.exports = Userrouter;
