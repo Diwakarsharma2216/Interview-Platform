@@ -8,6 +8,7 @@ const app = express();
 const Userrouter = require('./routes/usere.routes');
 const authenticateMiddleware = require('./middleware/authMiddleware');
 const authorise = require('./middleware/authorise');
+const openaiService = require('./services/openaiService');
 
 const PORT = process.env.PORT || 3000;
 
@@ -30,6 +31,15 @@ app.get("/test",authenticateMiddleware,authorise(["admin"]),(req,res)=>{
     res.send("You can acces this code")
 })
 
+router.post('/generateQuestion', async (req, res) => {
+    try {
+      const generatedQuestion = await openaiService.generateQuestion();
+      res.status(200).json({ question: generatedQuestion });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
 
 
 app.listen(PORT,async()=>{
