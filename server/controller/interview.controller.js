@@ -1,6 +1,7 @@
 
-const Question = require('../models/Question'); // Assuming you have a Question model
+const openaiService = require('../config/openaiService');
 const InterviewModel = require('../models/interview.model');
+
 
 const interviewController = {
   startInterview: async (req, res) => {
@@ -8,9 +9,9 @@ const interviewController = {
       const { userId, technologyStack } = req.body;
 
       // Generate a question related to the technology stack using OpenAI
-      const prompt = `Generate a question related to ${technologyStack}`;
+      const prompt = `Generate a question related to ${technologyStack} give me 10 question in form of array`;
       const generatedQuestion = await openaiService.generateQuestion(prompt);
-
+console.log(generatedQuestion)
       const startTime = new Date();
       const newInterview = new InterviewModel({
         userId,

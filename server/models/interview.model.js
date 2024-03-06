@@ -10,19 +10,7 @@ const interviewSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  questions: [
-    {
-      questionId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Question', // Reference to the Question model
-        required: true,
-      },
-      answer: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+  questions: [],
   startTime: {
     type: Date,
     required: true,
@@ -30,9 +18,11 @@ const interviewSchema = new mongoose.Schema({
   endTime: {
     type: Date,
   },
-  // Add any other relevant fields here
+
 });
 
 const InterviewModel = mongoose.model('Interview', interviewSchema);
 
 module.exports = InterviewModel;
+
+
