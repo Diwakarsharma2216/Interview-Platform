@@ -13,6 +13,10 @@ const authorise = require('./middleware/authorise');
 const connectToDataBase = require('./config/db');
 const openaiService = require('./config/openaiService');
 const Interviewrouter = require('./routes/interview.routes');
+const cookieSession = require('cookie-session');
+const passport = require('passport');
+const session = require('express-session');
+require('https').globalAgent.options.rejectUnauthorized = false;
 
 
 const PORT = process.env.PORT || 3000;
@@ -22,9 +26,13 @@ app.use(express.json());
 app.use(cors());
 
 // // passport js part
-// app.use(session({ secret: 'Diwakar sharma', resave: true, saveUninitialized: true }));
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize()); 
+app.use(passport.session()); 
 
 // User Router
 app.use("/user",Userrouter)
