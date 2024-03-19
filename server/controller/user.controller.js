@@ -6,6 +6,7 @@ const BlacklistToken = require("../models/blacklistToken.model");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../config/sendMail");
 const CreateActivationToken = require("../config/otp");
+const { log } = require("console");
 require("dotenv").config();
 // const passport=require("../config/passport")
 
@@ -212,6 +213,46 @@ activateUser: async (req, res) => {
       });
     }
   },
+
+  //Google Auth 
+  googleAuth:async(req,res)=>{
+
+    if(!req.user) 
+        res.redirect('/auth/callback/failure'); 
+
+    const existingUser = await UserModel.findOne({email:req?.user?.email});
+ 
+    if (!existingUser) {
+      const hash = await bcrypt.hash(req?.user?.sub, 10);
+      const newUser = {
+        username:req?.user?.email?.split("@")[0],
+        email:req?.user?.email,
+        password:hash,
+        avatar:req?.user?.picture
+      }
+      await UserModel.create(newUser);
+    }
+    
+    const user = await UserModel.findOne({ email:req.user.email });
+    
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    const refreshtoken = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET_REFRESH_KEY,
+      {
+        expiresIn: 300,
+      }
+    );
+
+    res
+      .status(200)
+      .json({ token, userId: user._id, expiresIn: 3600, refreshtoken });
+  }
 };
 
 // >>>> i am to element some more functionality below
