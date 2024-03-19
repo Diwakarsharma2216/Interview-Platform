@@ -1,7 +1,7 @@
 
 const openaiService = require('../config/openaiService');
 const InterviewModel = require('../models/interview.model');
-
+const { ObjectId } = require('mongoose').Types;
 
 const interviewController = {
   startInterview: async (req, res) => {
@@ -11,7 +11,7 @@ const interviewController = {
       // Generate a question related to the technology stack using OpenAI
       const prompt = `Generate a question related to ${technologyStack} give me 10 question in form of array`;
       const generatedQuestion = await openaiService.generateQuestion(prompt);
-console.log(generatedQuestion)
+
       const startTime = new Date();
       const newInterview = new InterviewModel({
         userId,
@@ -35,6 +35,11 @@ console.log(generatedQuestion)
     try {
       const { interviewId } = req.params;
 
+      // Validate if interviewId is a valid ObjectId
+      if (!ObjectId.isValid(interviewId)) {
+        return res.status(400).json({ error: 'Invalid interviewId format' });
+      }
+
       // Find the interview in the database and update the endTime
       const updatedInterview = await InterviewModel.findByIdAndUpdate(
         interviewId,
@@ -52,7 +57,6 @@ console.log(generatedQuestion)
       res.status(500).json({ error: 'Internal Server Error' });
     }
   },
-
 
   evaluateResponse: async (req, res) => {
     try {

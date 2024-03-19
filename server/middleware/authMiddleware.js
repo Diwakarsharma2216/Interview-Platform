@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const BlacklistToken = require("../models/blacklistToken.model");
 const UserModel = require("../models/user.model");
-require('dotenv').config()
+require("dotenv").config();
 const authenticateMiddleware = async (req, res, next) => {
   try {
     // Get the token from the Authorization header
@@ -23,8 +23,8 @@ const authenticateMiddleware = async (req, res, next) => {
     }
 
     // Verify the token
-    const decodedToken = jwt.verify(token,  process.env.JWT_SECRET_KEY);
-console.log( "decodedToken"  + decodedToken)
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    console.log("decodedToken" + decodedToken);
     // Check if the user associated with the token exists
     const user = await UserModel.findById(decodedToken.userId);
 
@@ -35,7 +35,6 @@ console.log( "decodedToken"  + decodedToken)
     req.user = user;
 
     next();
-
   } catch (error) {
     console.error(error);
     res.status(401).json({ message: "Unauthorized - Invalid token" });

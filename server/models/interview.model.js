@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const interviewSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
+    ref: "User", // Reference to the User model
     required: true,
   },
   technologyStack: {
@@ -18,11 +18,8 @@ const interviewSchema = new mongoose.Schema({
   endTime: {
     type: Date,
   },
-
 });
 
-const InterviewModel = mongoose.model('Interview', interviewSchema);
+const InterviewModel = mongoose.model("Interview", interviewSchema);
 
 module.exports = InterviewModel;
-
-
