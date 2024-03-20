@@ -30,7 +30,7 @@ const interviewController = {
   
   },
 
-
+// complete
   completeInterview: async (req, res) => {
     try {
       const { interviewId } = req.params;

@@ -1,31 +1,16 @@
 const express = require("express");
-
+const session = require('express-session');
+const passport = require('passport');
 require("dotenv").config();
 const cors = require("cors");
 
 const app = express();
 
-<<<<<<< HEAD
 const Userrouter = require("./routes/usere.routes");
 const authenticateMiddleware = require("./middleware/authMiddleware");
 const authorise = require("./middleware/authorise");
 const connectToDataBase = require("./config/db");
 const Interviewrouter = require("./routes/interview.routes");
-=======
-const Userrouter = require('./routes/usere.routes');
-const authenticateMiddleware = require('./middleware/authMiddleware');
-const authorise = require('./middleware/authorise');
-const connectToDataBase = require('./config/db');
-const openaiService = require('./config/openaiService');
-const Interviewrouter = require('./routes/interview.routes');
-const cookieSession = require('cookie-session');
-const passport = require('passport');
-const session = require('express-session');
-require('https').globalAgent.options.rejectUnauthorized = false;
-
-
-const PORT = process.env.PORT || 3000;
->>>>>>> 44b08ddc7ad122871a5038f2ea45bbd7b304d48b
 
 const PORT = process.env.PORT || 8080;
 
@@ -56,7 +41,7 @@ app.get("/test", authenticateMiddleware, authorise(["admin"]), (req, res) => {
 app.listen(PORT, async () => {
   try {
     await connectToDataBase;
-    console.log(`Server running on port ${PORT}`);
+   console.log(`Server running on port ${PORT}`);
   } catch (error) {
     console.log(error);
   }
