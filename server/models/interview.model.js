@@ -17,8 +17,8 @@ const interviewSchema = new mongoose.Schema({
   },
   endTime: {
     type: Date,
-  },
-
+  }, 
+  
 });
 
 const InterviewModel = mongoose.model('Interview', interviewSchema);

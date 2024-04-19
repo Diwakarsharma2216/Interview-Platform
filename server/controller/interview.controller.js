@@ -1,7 +1,5 @@
-
-const openaiService = require('../config/openaiService');
-const InterviewModel = require('../models/interview.model');
-
+const openaiService = require("../config/openaiService");
+const InterviewModel = require("../models/interview.model");
 
 const interviewController = {
   startInterview: async (req, res) => {
@@ -10,26 +8,22 @@ const interviewController = {
 
       // Generate a question related to the technology stack using OpenAI
       const prompt = `Generate a question related to ${technologyStack} give me 10 question in form of array`;
-      const generatedQuestion = await openaiService.generateQuestion(prompt);
-console.log(generatedQuestion)
+      const {message:{content}} = await openaiService.generateQuestion(prompt);
+      
       const startTime = new Date();
       const newInterview = new InterviewModel({
         userId,
         technologyStack,
-        questions: [{ question: generatedQuestion }],
+        questions:content.split("\n") ,
         startTime,
       });
-
       const savedInterview = await newInterview.save();
-
       res.status(201).json(savedInterview);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: "Internal Server Error" });
     }
-  
   },
-
 
   completeInterview: async (req, res) => {
     try {
@@ -43,31 +37,32 @@ console.log(generatedQuestion)
       );
 
       if (!updatedInterview) {
-        return res.status(404).json({ error: 'Interview not found' });
+        return res.status(404).json({ error: "Interview not found" });
       }
 
       res.status(200).json(updatedInterview);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: "Internal Server Error" });
     }
   },
-
 
   evaluateResponse: async (req, res) => {
     try {
       const { prompt, userResponse } = req.body;
 
       // Use the OpenAI service to evaluate the user's response
-      const evaluatedResponse = await openaiService.evaluateResponse(prompt, userResponse);
+      const evaluatedResponse = await openaiService.evaluateResponse(
+        prompt,
+        userResponse
+      );
 
       res.status(200).json({ evaluation: evaluatedResponse });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: "Internal Server Error" });
     }
   },
-}
-
+};
 
 module.exports = interviewController;
