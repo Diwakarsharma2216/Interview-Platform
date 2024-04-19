@@ -29,6 +29,11 @@ const interviewController = {
     try {
       const { interviewId } = req.params;
 
+      // Validate if interviewId is a valid ObjectId
+      if (!ObjectId.isValid(interviewId)) {
+        return res.status(400).json({ error: 'Invalid interviewId format' });
+      }
+
       // Find the interview in the database and update the endTime
       const updatedInterview = await InterviewModel.findByIdAndUpdate(
         interviewId,
